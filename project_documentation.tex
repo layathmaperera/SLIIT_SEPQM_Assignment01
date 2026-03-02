@@ -1,0 +1,142 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{geometry}
+\geometry{a4paper, margin=1in}
+\usepackage{hyperref}
+\usepackage{graphicx}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{booktabs}
+\usepackage{tikz}
+\usetikzlibrary{shapes.geometric, arrows, positioning}
+
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+
+\lstdefinestyle{mystyle}{
+    backgroundcolor=\color{backcolour},   
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{magenta},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\ttfamily\footnotesize,
+    breakatwhitespace=false,         
+    breaklines=true,                 
+    captionpos=b,                    
+    keepspaces=true,                 
+    numbers=left,                    
+    numbersep=5pt,                  
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=2
+}
+\lstset{style=mystyle}
+
+\title{\textbf{Project Documentation: Student Management System}}
+\author{Group Assignment - Software Testing}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+\tableofcontents
+\newpage
+
+\section{Project Overview}
+This document outlines the architecture, flow, and specific testing methodologies implemented for the continuous integration and delivery of a \textbf{Student Management System}. The application acts as a demonstration project showcasing enterprise-grade software testing capabilities for a university assignment.
+
+\subsection{Technology Stack}
+The project employs a modern, full-stack architecture separated into a backend API and a dynamic frontend dashboard.
+\begin{itemize}
+    \item \textbf{Backend:} Java 17, Spring Boot 3.4.x, Spring Web, Spring Data JPA.
+    \item \textbf{Database:} Neon PostgreSQL (Cloud Managed Database).
+    \item \textbf{Frontend:} React, Vite, Vanilla CSS.
+    \item \textbf{Testing \& CI/CD:} JUnit 5, AssertJ, Mockito, Cucumber (for BDD), Maven Surefire, and GitHub Actions.
+\end{itemize}
+
+\section{System Architecture and Flow}
+
+\subsection{High-Level Data Flow}
+The system enables users to manage university enrollments through a React interface that passes RESTful requests to the Spring Boot backend, which persists data dynamically using Hibernate logic onto an external managed PostgreSQL server.
+
+\tikzstyle{startstop} = [rectangle, rounded corners, minimum width=3cm, minimum height=1cm,text centered, draw=black, fill=red!30]
+\tikzstyle{io} = [trapezium, trapezium left angle=70, trapezium right angle=110, minimum width=3cm, minimum height=1cm, text centered, draw=black, fill=blue!30]
+\tikzstyle{process} = [rectangle, minimum width=3cm, minimum height=1cm, text centered, draw=black, fill=orange!30]
+\tikzstyle{decision} = [diamond, minimum width=3cm, minimum height=5cm, text centered, draw=black, fill=green!30]
+\tikzstyle{arrow} = [thick,->,>=stealth]
+
+\begin{figure}[h]
+\centering
+\begin{tikzpicture}[node distance=2.5cm]
+\node (ui) [io] {React Frontend (Vite)};
+\node (controller) [process, below of=ui] {StudentController (Spring REST)};
+\node (service) [process, below of=controller] {StudentService (Business Logic)};
+\node (repo) [process, below of=service] {StudentRepository (JPA)};
+\node (db) [startstop, right of=repo, xshift=4cm] {Neon PostgreSQL DB};
+
+\draw [arrow] (ui) -- node[anchor=west] {HTTP GET/POST/DELETE (Fetch API)} (controller);
+\draw [arrow] (controller) -- (service);
+\draw [arrow] (service) -- (repo);
+\draw [arrow] (repo) -- node[anchor=north] {Hibernate ORM (SQL)} (db);
+\end{tikzpicture}
+\caption{System Architecture Flowchart}
+\end{figure}
+
+\subsection{Domain Model (Student)}
+The core entity handles attributes standard for university management:
+\begin{itemize}
+    \item \texttt{id} (Long) - Auto-generated Primary Key
+    \item \texttt{name} (String) - Full name
+    \item \texttt{email} (String) - Campus Email
+    \item \texttt{age} (int) - Age of the student
+    \item \texttt{course} (String) - Example: SE3010
+\end{itemize}
+
+\section{Testing Strategy (Feature Breakdown)}
+The application splits testing methodologies across the members of the team.
+
+\subsection{Member 1: Assertions}
+Focused heavily on Integration testing via \texttt{MockMvc}. 
+\begin{itemize}
+    \item Validated REST Response statuses including \texttt{201 Created}, \texttt{200 OK}, \texttt{404 Not Found}, and \texttt{400 Bad Request}.
+    \item Applied JSONPath testing constraints (e.g., \lstinline{$.name}) to deep-validate returned Object mappings ensuring payload integrity.
+\end{itemize}
+
+\subsection{Member 2: Test Fixtures \& Setup}
+Focused on Database integrity and Data Pollution prevention.
+\begin{itemize}
+    \item Utilized \texttt{@BeforeEach} to cleanly insert specific payload test fixtures mapping entities before a test fires.
+    \item Implemented \texttt{@AfterEach} with explicit \lstinline{studentRepository.deleteAll()} to sanitize the testing database afterward.
+    \item Created centralized and reusable \lstinline{createReusableStudentData()} object factories to reduce code duplication in defining entities.
+\end{itemize}
+
+\subsection{Member 3: Mocking and Stubbing}
+Brought unit test execution speeds down drastically by completely dropping network or database reliance via \textbf{Mockito}.
+\begin{itemize}
+    \item Isolated testing of the \texttt{StudentController} by mocking the \texttt{StudentService} layer, assuring the REST controllers behave adequately regardless of database health.
+    \item Used \lstinline{when(...).thenReturn(...)} patterns on \texttt{StudentRepository} to strictly limit scope testing when testing specific complex \texttt{StudentService} methods.
+\end{itemize}
+
+\subsection{Member 4: Continuous Integration \& Test Reporting}
+Established an automated workflow ensuring no faulty logic lands in production branches.
+\begin{itemize}
+    \item Configured a complete \textbf{GitHub Actions} YAML workflow (\lstinline{.github/workflows/test.yml}) firing Maven tests upon pushes/PRs to \texttt{main}.
+    \item Enabled robust \textbf{Maven Surefire Reports} for standardized XML logging.
+    \item Set up automated HTML reporting enabling easy developer digestion of test states.
+\end{itemize}
+
+\section{Extra Feature: Behaviour-Driven Development (BDD)}
+To elevate testing to a business-readable format, \textbf{Cucumber} was integrated into the Spring Boot ecosystem.
+\begin{itemize}
+    \item Wrote plain English, Gherkin syntax feature files documenting User Scenarios.
+    \item Backed the Gherkin files using \texttt{TestRestTemplate} Java Step Definitions.
+    \item Configured elegant output generation to \texttt{target/cucumber-reports/}, giving fully visual mappings of Given/When/Then scenario passes.
+\end{itemize}
+
+\section{Conclusion}
+This project successfully demonstrates the full range of Software Engineering testing workflows, shifting smoothly from highly unit-scoped logic mocked via Mockito, scaling heavily into BDD Cucumber Scenarios mirroring actual end-user inputs coming from the React Frontend UI, all continuously verified via CI pipelines connecting to an orchestrated Cloud database natively.
+
+\end{document}

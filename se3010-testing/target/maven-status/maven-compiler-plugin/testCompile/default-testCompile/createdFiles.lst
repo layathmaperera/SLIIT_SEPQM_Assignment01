@@ -1,0 +1,6 @@
+com\sliit\se3010_testing\bdd\StudentSteps.class
+com\sliit\se3010_testing\bdd\CucumberSpringConfiguration.class
+com\sliit\se3010_testing\Member3MockingTest.class
+com\sliit\se3010_testing\Member2FixturesTest.class
+com\sliit\se3010_testing\bdd\CucumberIntegrationTest.class
+com\sliit\se3010_testing\Member1AssertionsTest.class
