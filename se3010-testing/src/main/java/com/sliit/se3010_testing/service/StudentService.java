@@ -14,7 +14,16 @@ public class StudentService {
 
     private final StudentRepository studentRepository;
 
+    public static class DuplicateEmailException extends RuntimeException {
+        public DuplicateEmailException(String email) {
+            super("A student with email '" + email + "' already exists.");
+        }
+    }
+
     public Student createStudent(Student student) {
+        studentRepository.findByEmail(student.getEmail()).ifPresent(existing -> {
+            throw new DuplicateEmailException(student.getEmail());
+        });
         return studentRepository.save(student);
     }
 

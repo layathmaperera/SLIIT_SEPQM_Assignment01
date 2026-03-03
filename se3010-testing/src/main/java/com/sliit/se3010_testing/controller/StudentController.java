@@ -18,9 +18,13 @@ public class StudentController {
     private final StudentService studentService;
 
     @PostMapping
-    public ResponseEntity<Student> createStudent(@RequestBody Student student) {
-        Student createdStudent = studentService.createStudent(student);
-        return new ResponseEntity<>(createdStudent, HttpStatus.CREATED);
+    public ResponseEntity<?> createStudent(@RequestBody Student student) {
+        try {
+            Student createdStudent = studentService.createStudent(student);
+            return new ResponseEntity<>(createdStudent, HttpStatus.CREATED);
+        } catch (com.sliit.se3010_testing.service.StudentService.DuplicateEmailException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+        }
     }
 
     @GetMapping

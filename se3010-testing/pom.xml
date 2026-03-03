@@ -42,42 +42,68 @@
       <optional>true</optional>
     </dependency>
 
-    <!-- Testing Tool Dependency (JUnit 5 is included automatically by spring-boot-starter-test, but user requested explicit TestNG snippet, I will include both to cover all bases but stick to standard tools to make it 100% working as requested.) -->
+    <!-- Spring Boot Test (MockMvc, Spring context) - JUnit EXCLUDED -->
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-test</artifactId>
       <scope>test</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>org.junit.jupiter</groupId>
+          <artifactId>junit-jupiter</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.junit.vintage</groupId>
+          <artifactId>junit-vintage-engine</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.junit.jupiter</groupId>
+          <artifactId>junit-jupiter-api</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.junit.jupiter</groupId>
+          <artifactId>junit-jupiter-engine</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.junit.platform</groupId>
+          <artifactId>junit-platform-suite</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
 
-    <!-- Adding TestNG just in case they are asked to show it in the POM as proof they followed the prompt example snippet -->
+    <!-- TestNG -->
     <dependency>
       <groupId>org.testng</groupId>
       <artifactId>testng</artifactId>
-      <version>7.9.0</version>
+      <version>7.10.2</version>
       <scope>test</scope>
     </dependency>
-    <!-- BDD (Cucumber) Dependencies -->
+
+    <!-- Mockito standalone (no JUnit binding) -->
+    <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-core</artifactId>
+      <version>5.12.0</version>
+      <scope>test</scope>
+    </dependency>
+
+    <!-- Cucumber BDD -->
     <dependency>
       <groupId>io.cucumber</groupId>
       <artifactId>cucumber-java</artifactId>
-      <version>7.15.0</version>
+      <version>7.18.0</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>io.cucumber</groupId>
+      <artifactId>cucumber-testng</artifactId>
+      <version>7.18.0</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>io.cucumber</groupId>
       <artifactId>cucumber-spring</artifactId>
-      <version>7.15.0</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>io.cucumber</groupId>
-      <artifactId>cucumber-junit-platform-engine</artifactId>
-      <version>7.15.0</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.junit.platform</groupId>
-      <artifactId>junit-platform-suite</artifactId>
+      <version>7.18.0</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
@@ -96,37 +122,32 @@
           </excludes>
         </configuration>
       </plugin>
-        <!-- Surefire plugin for HTML reports (Member 4 feature) -->
+
+      <!-- Surefire: run TestNG suites -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
         <version>3.2.5</version>
         <configuration>
-          <statelessTestsetReporter implementation="org.apache.maven.plugin.surefire.extensions.junit5.JUnit5Xml30StatelessReporter">
-            <disable>false</disable>
-            <version>3.0</version>
-            <usePhrasedFileName>false</usePhrasedFileName>
-            <usePhrasedTestSuiteClassName>true</usePhrasedTestSuiteClassName>
-            <usePhrasedTestCaseClassName>true</usePhrasedTestCaseClassName>
-            <usePhrasedTestCaseMethodName>true</usePhrasedTestCaseMethodName>
-          </statelessTestsetReporter>
-          <!-- Enable for testing plugin -->
+          <suiteXmlFiles>
+            <suiteXmlFile>testng.xml</suiteXmlFile>
+          </suiteXmlFiles>
         </configuration>
       </plugin>
-        
+
       <!-- Surefire Report Plugin to generate HTML report -->
       <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-surefire-report-plugin</artifactId>
-          <version>3.2.5</version>
-          <executions>
-              <execution>
-                  <phase>test</phase>
-                  <goals>
-                      <goal>report</goal>
-                  </goals>
-              </execution>
-          </executions>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-report-plugin</artifactId>
+        <version>3.2.5</version>
+        <executions>
+          <execution>
+            <phase>test</phase>
+            <goals>
+              <goal>report</goal>
+            </goals>
+          </execution>
+        </executions>
       </plugin>
     </plugins>
   </build>
