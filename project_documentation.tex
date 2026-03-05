@@ -3,140 +3,978 @@
 \usepackage{geometry}
 \geometry{a4paper, margin=1in}
 \usepackage{hyperref}
+\hypersetup{colorlinks=true, linkcolor=blue, urlcolor=blue, citecolor=blue}
 \usepackage{graphicx}
 \usepackage{listings}
 \usepackage{xcolor}
 \usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{longtable}
+\usepackage{array}
 \usepackage{tikz}
+\usepackage{mdframed}
+\usepackage{enumitem}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
 \usetikzlibrary{shapes.geometric, arrows, positioning}
 
+% ── Colours ────────────────────────────────────────────────────────────────
 \definecolor{codegreen}{rgb}{0,0.6,0}
 \definecolor{codegray}{rgb}{0.5,0.5,0.5}
 \definecolor{codepurple}{rgb}{0.58,0,0.82}
 \definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+\definecolor{passgreen}{rgb}{0.13,0.55,0.13}
+\definecolor{failred}{rgb}{0.8,0.1,0.1}
+\definecolor{infobox}{rgb}{0.93,0.96,1.0}
+\definecolor{warnbox}{rgb}{1.0,0.97,0.87}
+\definecolor{headerblue}{rgb}{0.18,0.31,0.60}
 
-\lstdefinestyle{mystyle}{
-    backgroundcolor=\color{backcolour},   
+% ── Code listing style ─────────────────────────────────────────────────────
+\lstdefinestyle{javaStyle}{
+    backgroundcolor=\color{backcolour},
     commentstyle=\color{codegreen},
-    keywordstyle=\color{magenta},
+    keywordstyle=\color{magenta}\bfseries,
     numberstyle=\tiny\color{codegray},
     stringstyle=\color{codepurple},
-    basicstyle=\ttfamily\footnotesize,
-    breakatwhitespace=false,         
-    breaklines=true,                 
-    captionpos=b,                    
-    keepspaces=true,                 
-    numbers=left,                    
-    numbersep=5pt,                  
-    showspaces=false,                
+    basicstyle=\ttfamily\scriptsize,
+    breakatwhitespace=false,
+    breaklines=true,
+    captionpos=b,
+    keepspaces=true,
+    numbers=left,
+    numbersep=5pt,
+    showspaces=false,
     showstringspaces=false,
-    showtabs=false,                  
+    showtabs=false,
+    tabsize=2,
+    frame=single,
+    rulecolor=\color{codegray}
+}
+\lstdefinestyle{xmlStyle}{
+    backgroundcolor=\color{backcolour},
+    basicstyle=\ttfamily\scriptsize,
+    keywordstyle=\color{blue},
+    stringstyle=\color{codepurple},
+    commentstyle=\color{codegreen},
+    breaklines=true,
+    frame=single,
+    numbers=left,
+    numberstyle=\tiny\color{codegray},
+    numbersep=5pt,
     tabsize=2
 }
-\lstset{style=mystyle}
+\lstdefinestyle{shellStyle}{
+    backgroundcolor=\color{black!90},
+    basicstyle=\ttfamily\scriptsize\color{white},
+    breaklines=true,
+    frame=single,
+    rulecolor=\color{black}
+}
+\lstdefinestyle{gherkinStyle}{
+    backgroundcolor=\color{backcolour},
+    basicstyle=\ttfamily\scriptsize,
+    keywordstyle=\color{blue}\bfseries,
+    stringstyle=\color{codepurple},
+    commentstyle=\color{codegreen},
+    breaklines=true,
+    frame=single,
+    numbers=left,
+    numberstyle=\tiny\color{codegray},
+    numbersep=5pt
+}
+\lstset{style=javaStyle}
 
-\title{\textbf{Project Documentation: Student Management System}}
-\author{Group Assignment - Software Testing}
-\date{\today}
+% ── Info/warn boxes ────────────────────────────────────────────────────────
+\newmdenv[backgroundcolor=infobox, linecolor=headerblue, linewidth=1.5pt,
+  innerleftmargin=10pt, innerrightmargin=10pt, innertopmargin=6pt,
+  innerbottommargin=6pt]{infoblock}
+\newmdenv[backgroundcolor=warnbox, linecolor=orange!70, linewidth=1.5pt,
+  innerleftmargin=10pt, innerrightmargin=10pt, innertopmargin=6pt,
+  innerbottommargin=6pt]{warnblock}
 
+% ── Page style ─────────────────────────────────────────────────────────────
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\textcolor{headerblue}{\textbf{SE3010 -- Student Management System}}}
+\fancyhead[R]{\small\textcolor{codegray}{Software Quality \& Testing}}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+\title{
+  \vspace{-1cm}
+  \textcolor{headerblue}{\Huge\textbf{Student Management System}}\\[0.4cm]
+  \Large Testing \& Operations Manual\\[0.3cm]
+  \normalsize SE3010 -- Software Quality \& Project Management\\[0.2cm]
+  \normalsize Group Assignment Documentation
+}
+\author{Group Assignment -- Software Testing (TestNG + Cucumber)}
+\date{March 3, 2026}
+
+% ═══════════════════════════════════════════════════════════════════════════
 \begin{document}
 
 \maketitle
+\thispagestyle{empty}
+
+\begin{infoblock}
+\textbf{Quick Navigation:} This document covers the complete project -- architecture,
+all test cases per member, step-by-step run instructions, and how to verify results.
+Use the Table of Contents below to jump to any section.
+\end{infoblock}
+
+\vspace{0.5cm}
 \tableofcontents
 \newpage
 
+% ═══════════════════════════════════════════════════════════════════════════
 \section{Project Overview}
-This document outlines the architecture, flow, and specific testing methodologies implemented for the continuous integration and delivery of a \textbf{Student Management System}. The application acts as a demonstration project showcasing enterprise-grade software testing capabilities for a university assignment.
+% ═══════════════════════════════════════════════════════════════════════════
+
+This document is the complete reference for the \textbf{Student Management System} --
+a full-stack web application used as a demonstration project for enterprise-grade software
+testing in a university assignment context.
 
 \subsection{Technology Stack}
-The project employs a modern, full-stack architecture separated into a backend API and a dynamic frontend dashboard.
-\begin{itemize}
-    \item \textbf{Backend:} Java 17, Spring Boot 3.4.x, Spring Web, Spring Data JPA.
-    \item \textbf{Database:} Neon PostgreSQL (Cloud Managed Database).
-    \item \textbf{Frontend:} React, Vite, Vanilla CSS.
-    \item \textbf{Testing \& CI/CD:} JUnit 5, AssertJ, Mockito, Cucumber (for BDD), Maven Surefire, and GitHub Actions.
-\end{itemize}
 
-\section{System Architecture and Flow}
+\begin{tabularx}{\textwidth}{>{\bfseries}lX}
+\toprule
+Layer & Technology \\
+\midrule
+Backend & Java 17, Spring Boot 3.4.x, Spring Web, Spring Data JPA, Lombok \\
+Database & H2 In-Memory (tests) / Neon PostgreSQL (production) \\
+Frontend & React 19, Vite 7, Vanilla CSS \\
+Testing Framework & \textbf{TestNG 7.10.2} (all unit \& integration tests) \\
+BDD & \textbf{Cucumber 7.18.0} with \texttt{cucumber-testng} runner \\
+Mocking & \textbf{Mockito 5.12.0} standalone (no JUnit binding) \\
+API Testing & Spring MockMvc (no Selenium, no Postman, no browser) \\
+Build / Reports & Maven 3.x, maven-surefire-plugin 3.2.5, maven-surefire-report-plugin \\
+\bottomrule
+\end{tabularx}
+
+\vspace{0.4cm}
+\begin{warnblock}
+\textbf{Important:} This project uses \textbf{TestNG only}. JUnit Jupiter,
+JUnit Vintage, and \texttt{junit-platform-suite} are all \textbf{explicitly excluded}
+from the POM. No \texttt{org.junit.*} imports exist anywhere in the test source.
+\end{warnblock}
+
+\subsection{Project Folder Structure}
+
+\begin{lstlisting}[style=shellStyle, numbers=none]
+SEPQM/
+  frontend/                        <- React + Vite UI
+    src/
+      App.jsx                      <- Main component (CRUD UI)
+      api.js                       <- Fetch API helpers
+      index.css                    <- Full custom stylesheet
+  se3010-testing/                  <- Spring Boot backend + tests
+    src/
+      main/java/.../
+        StudentController.java     <- REST endpoints
+        StudentService.java        <- Business logic + duplicate check
+        StudentRepository.java     <- JPA repo (findByEmail added)
+        Student.java               <- JPA entity
+      test/java/
+        tests/
+          StudentControllerTest.java  <- Member 1: TestNG Assertions
+          StudentServiceTest.java     <- Member 2: Fixtures + DataProvider
+          CucumberRunnerTest.java     <- Member 4: BDD Runner
+        steps/
+          StudentSteps.java           <- Member 3: Cucumber Step Defs
+      test/resources/
+        features/
+          student_registration.feature  <- Member 3: Gherkin scenarios
+        application-test.properties     <- H2 in-memory DB config
+    testng.xml                       <- TestNG suite (all 4 members)
+    pom.xml
+\end{lstlisting}
+
+% ═══════════════════════════════════════════════════════════════════════════
+\section{System Architecture}
+% ═══════════════════════════════════════════════════════════════════════════
 
 \subsection{High-Level Data Flow}
-The system enables users to manage university enrollments through a React interface that passes RESTful requests to the Spring Boot backend, which persists data dynamically using Hibernate logic onto an external managed PostgreSQL server.
 
-\tikzstyle{startstop} = [rectangle, rounded corners, minimum width=3cm, minimum height=1cm,text centered, draw=black, fill=red!30]
-\tikzstyle{io} = [trapezium, trapezium left angle=70, trapezium right angle=110, minimum width=3cm, minimum height=1cm, text centered, draw=black, fill=blue!30]
-\tikzstyle{process} = [rectangle, minimum width=3cm, minimum height=1cm, text centered, draw=black, fill=orange!30]
-\tikzstyle{decision} = [diamond, minimum width=3cm, minimum height=5cm, text centered, draw=black, fill=green!30]
-\tikzstyle{arrow} = [thick,->,>=stealth]
+\tikzstyle{iobox}   = [trapezium, trapezium left angle=70, trapezium right angle=110,
+  minimum width=3.2cm, minimum height=1cm, text centered, draw=black, fill=blue!25]
+\tikzstyle{procbox} = [rectangle, minimum width=3.2cm, minimum height=1cm,
+  text centered, draw=black, fill=orange!25]
+\tikzstyle{dbbox}   = [rectangle, rounded corners, minimum width=3.2cm,
+  minimum height=1cm, text centered, draw=black, fill=red!20]
+\tikzstyle{arrow}   = [thick,->,>=stealth]
 
 \begin{figure}[h]
 \centering
-\begin{tikzpicture}[node distance=2.5cm]
-\node (ui) [io] {React Frontend (Vite)};
-\node (controller) [process, below of=ui] {StudentController (Spring REST)};
-\node (service) [process, below of=controller] {StudentService (Business Logic)};
-\node (repo) [process, below of=service] {StudentRepository (JPA)};
-\node (db) [startstop, right of=repo, xshift=4cm] {Neon PostgreSQL DB};
+\begin{tikzpicture}[node distance=2.2cm]
+\node (ui)         [iobox]   {React Frontend (Vite)};
+\node (controller) [procbox, below of=ui]         {StudentController (REST)};
+\node (service)    [procbox, below of=controller] {StudentService (Logic)};
+\node (repo)       [procbox, below of=service]    {StudentRepository (JPA)};
+\node (db)         [dbbox,   right of=repo, xshift=4.5cm] {PostgreSQL / H2};
 
-\draw [arrow] (ui) -- node[anchor=west] {HTTP GET/POST/DELETE (Fetch API)} (controller);
+\draw [arrow] (ui)         -- node[anchor=west,font=\small] {HTTP GET/POST/PUT/DELETE} (controller);
 \draw [arrow] (controller) -- (service);
-\draw [arrow] (service) -- (repo);
-\draw [arrow] (repo) -- node[anchor=north] {Hibernate ORM (SQL)} (db);
+\draw [arrow] (service)    -- (repo);
+\draw [arrow] (repo)       -- node[anchor=north,font=\small] {Hibernate ORM} (db);
 \end{tikzpicture}
-\caption{System Architecture Flowchart}
+\caption{System Architecture -- Request Flow}
 \end{figure}
 
-\subsection{Domain Model (Student)}
-The core entity handles attributes standard for university management:
-\begin{itemize}
-    \item \texttt{id} (Long) - Auto-generated Primary Key
-    \item \texttt{name} (String) - Full name
-    \item \texttt{email} (String) - Campus Email
-    \item \texttt{age} (int) - Age of the student
-    \item \texttt{course} (String) - Example: SE3010
+\subsection{REST API Endpoints}
+
+\begin{tabularx}{\textwidth}{llX}
+\toprule
+\textbf{Method} & \textbf{Endpoint} & \textbf{Description} \\
+\midrule
+POST   & \texttt{/api/students}      & Create new student (409 if email duplicate) \\
+GET    & \texttt{/api/students}      & Get all students \\
+GET    & \texttt{/api/students/\{id\}} & Get student by ID (404 if not found) \\
+PUT    & \texttt{/api/students/\{id\}} & Update student (404 if not found) \\
+DELETE & \texttt{/api/students/\{id\}} & Delete student \\
+\bottomrule
+\end{tabularx}
+
+\subsection{Student Domain Model}
+
+\begin{tabularx}{\textwidth}{llX}
+\toprule
+\textbf{Field} & \textbf{Type} & \textbf{Description} \\
+\midrule
+\texttt{id}     & Long   & Auto-generated primary key \\
+\texttt{name}   & String & Full name of the student \\
+\texttt{email}  & String & Campus email (must be unique) \\
+\texttt{age}    & int    & Student age \\
+\texttt{course} & String & Enrolled course code (e.g.\ SE3010) \\
+\bottomrule
+\end{tabularx}
+
+% ═══════════════════════════════════════════════════════════════════════════
+\section{Prerequisites \& Environment Setup}
+% ═══════════════════════════════════════════════════════════════════════════
+
+\subsection{Required Software}
+
+\begin{tabularx}{\textwidth}{>{\bfseries}lX}
+\toprule
+Tool & Version / Notes \\
+\midrule
+Java JDK & 17 or higher (\texttt{java -version} to verify) \\
+Apache Maven & 3.8+ (\texttt{mvn -version} to verify) \\
+Node.js & 18+ (\texttt{node -v} to verify) -- only for frontend \\
+npm & 9+ (bundled with Node.js) \\
+Git & Any recent version \\
+IDE (optional) & IntelliJ IDEA recommended; import as Maven project \\
+\bottomrule
+\end{tabularx}
+
+\subsection{Verify Prerequisites}
+
+\begin{lstlisting}[style=shellStyle, numbers=none, caption={Verify all tools are installed}]
+# Check Java
+java -version
+# Expected: openjdk version "17.x.x" or higher
+
+# Check Maven
+mvn -version
+# Expected: Apache Maven 3.x.x
+
+# Check Node + npm (frontend only)
+node -v
+npm -v
+\end{lstlisting}
+
+% ═══════════════════════════════════════════════════════════════════════════
+\section{How to Run -- Backend \& Tests}
+% ═══════════════════════════════════════════════════════════════════════════
+
+\subsection{Step 1 -- Navigate to the Backend Project}
+
+\begin{lstlisting}[style=shellStyle, numbers=none]
+cd "C:\C Projects\SEPQM\se3010-testing"
+\end{lstlisting}
+
+\subsection{Step 2 -- Run the Full Test Suite}
+
+This single command compiles all sources, resolves dependencies, runs every
+TestNG and Cucumber test, and generates the HTML report:
+
+\begin{lstlisting}[style=shellStyle, numbers=none, caption={Run all tests}]
+mvn test
+\end{lstlisting}
+
+\begin{infoblock}
+\textbf{What happens:} Maven reads \texttt{testng.xml}, which executes three test groups
+in sequence -- Member 1 controller tests, Member 2 service tests, and Member 3+4 BDD tests.
+All 13 tests should complete in roughly 30--60 seconds.
+\end{infoblock}
+
+\subsection{Step 3 -- Run Only One Member's Tests}
+
+To run a single member's tests in isolation, use the \texttt{-Dtest} flag with the
+class name, or run individual TestNG groups:
+
+\begin{lstlisting}[style=shellStyle, numbers=none, caption={Run individual member tests}]
+# Member 1 only
+mvn test -Dtest=tests.StudentControllerTest
+
+# Member 2 only
+mvn test -Dtest=tests.StudentServiceTest
+
+# Member 3+4 only (BDD)
+mvn test -Dtest=tests.CucumberRunnerTest
+\end{lstlisting}
+
+\subsection{Step 4 -- Run the Spring Boot Application (Production)}
+
+To run the backend server (connects to PostgreSQL, not H2):
+
+\begin{lstlisting}[style=shellStyle, numbers=none, caption={Start the backend server}]
+mvn spring-boot:run
+# Server starts at: http://localhost:8080
+# API base URL:     http://localhost:8080/api/students
+\end{lstlisting}
+
+\subsection{Step 5 -- Generate the HTML Surefire Report Separately}
+
+\begin{lstlisting}[style=shellStyle, numbers=none, caption={Generate HTML report only}]
+mvn surefire-report:report
+# Report location: target/site/surefire-report.html
+\end{lstlisting}
+
+% ═══════════════════════════════════════════════════════════════════════════
+\section{How to Run -- Frontend}
+% ═══════════════════════════════════════════════════════════════════════════
+
+\subsection{Step 1 -- Install Dependencies}
+
+\begin{lstlisting}[style=shellStyle, numbers=none, caption={Install frontend npm packages}]
+cd "C:\C Projects\SEPQM\frontend"
+npm install
+\end{lstlisting}
+
+\subsection{Step 2 -- Start the Development Server}
+
+\begin{lstlisting}[style=shellStyle, numbers=none, caption={Start Vite dev server}]
+npm run dev
+# Frontend runs at: http://localhost:5173
+# Make sure backend is also running at :8080
+\end{lstlisting}
+
+\subsection{Step 3 -- Build for Production}
+
+\begin{lstlisting}[style=shellStyle, numbers=none, caption={Build frontend for production}]
+npm run build
+# Output: frontend/dist/
+\end{lstlisting}
+
+\subsection{Step 4 -- Lint Check}
+
+\begin{lstlisting}[style=shellStyle, numbers=none, caption={Run ESLint}]
+npm run lint
+# Zero errors expected (React Hooks + React Refresh rules enforced)
+\end{lstlisting}
+
+\begin{infoblock}
+\textbf{Frontend Features:} The React UI supports adding a student (POST), listing all
+enrolled students (GET), and deleting a student (DELETE) with a confirmation dialog.
+All API calls are in \texttt{src/api.js} and target \texttt{http://localhost:8080/api/students}.
+\end{infoblock}
+
+% ═══════════════════════════════════════════════════════════════════════════
+\section{Test Cases -- Member 1: TestNG Assertions}
+% ═══════════════════════════════════════════════════════════════════════════
+
+\textbf{File:} \texttt{src/test/java/tests/StudentControllerTest.java}\\
+\textbf{Approach:} Spring Boot integration test using \texttt{MockMvc} to call the real
+\texttt{StudentController} without starting a full HTTP server. Assertions use
+\texttt{org.testng.Assert} exclusively.
+
+\subsection{Test Case Summary}
+
+\begin{tabularx}{\textwidth}{>{\ttfamily\small}lX>{\bfseries}l}
+\toprule
+\textbf{Test Method} & \textbf{What it Verifies} & \textbf{Expected} \\
+\midrule
+testCreateStudent\_Returns201AndCorrectBody
+  & POST valid student payload; asserts HTTP 201,
+    JSONPath \texttt{\$.name} = ``Alice'', \texttt{\$.email} = ``alice@test.com'',
+    response body not empty
+  & \textcolor{passgreen}{PASS} \\
+\addlinespace
+testGetStudent\_Returns200
+  & GET existing student by ID; asserts HTTP 200,
+    JSONPath \texttt{\$.name} = ``Bob'', body not null
+  & \textcolor{passgreen}{PASS} \\
+\addlinespace
+testGetStudent\_NotFound\_Returns404
+  & GET non-existent ID 99999; asserts HTTP status code equals 404
+  & \textcolor{passgreen}{PASS} \\
+\addlinespace
+testCreateStudent\_MalformedJson\_Returns400
+  & POST \texttt{\{\ invalid json\ \}} string; asserts HTTP status code equals 400
+  & \textcolor{passgreen}{PASS} \\
+\bottomrule
+\end{tabularx}
+
+\subsection{Key Annotations Used}
+
+\begin{itemize}[noitemsep]
+  \item \texttt{@SpringBootTest} -- loads full application context with MockMvc
+  \item \texttt{@AutoConfigureMockMvc} -- auto-wires MockMvc
+  \item \texttt{@ActiveProfiles("test")} -- activates H2 in-memory DB
+  \item \texttt{@BeforeMethod} -- clears repository before every test
+  \item \texttt{@Test} from \texttt{org.testng.annotations}
 \end{itemize}
 
-\section{Testing Strategy (Feature Breakdown)}
-The application splits testing methodologies across the members of the team.
+\subsection{Code Listing}
 
-\subsection{Member 1: Assertions}
-Focused heavily on Integration testing via \texttt{MockMvc}. 
-\begin{itemize}
-    \item Validated REST Response statuses including \texttt{201 Created}, \texttt{200 OK}, \texttt{404 Not Found}, and \texttt{400 Bad Request}.
-    \item Applied JSONPath testing constraints (e.g., \lstinline{$.name}) to deep-validate returned Object mappings ensuring payload integrity.
+\begin{lstlisting}[language=Java, style=javaStyle, caption={StudentControllerTest.java -- Member 1}]
+@SpringBootTest(classes = Se3010TestingApplication.class,
+        webEnvironment = SpringBootTest.WebEnvironment.MOCK)
+@AutoConfigureMockMvc
+@ActiveProfiles("test")
+public class StudentControllerTest extends AbstractTestNGSpringContextTests {
+
+    @BeforeMethod
+    public void cleanUp() { studentRepository.deleteAll(); }
+
+    @Test
+    public void testCreateStudent_Returns201AndCorrectBody() throws Exception {
+        Student student = Student.builder()
+                .name("Alice").email("alice@test.com").age(22).course("SE3010").build();
+        String body = mockMvc.perform(post("/api/students")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(student)))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.name").value("Alice"))
+                .andReturn().getResponse().getContentAsString();
+        Assert.assertFalse(body.isEmpty(), "Response body must not be empty");
+    }
+
+    @Test
+    public void testGetStudent_NotFound_Returns404() throws Exception {
+        int statusCode = mockMvc.perform(get("/api/students/{id}", 99999L))
+                .andReturn().getResponse().getStatus();
+        Assert.assertEquals(statusCode, 404, "Expected HTTP 404 for missing student");
+    }
+}
+\end{lstlisting}
+
+\subsection{How to Check Member 1 Results}
+
+\begin{lstlisting}[style=shellStyle, numbers=none]
+mvn test -Dtest=tests.StudentControllerTest
+\end{lstlisting}
+
+\textbf{Expected console output:}
+
+\begin{lstlisting}[style=shellStyle, numbers=none]
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0
+\end{lstlisting}
+
+\textbf{Report file:} \texttt{target/surefire-reports/tests.StudentControllerTest.txt}
+
+% ═══════════════════════════════════════════════════════════════════════════
+\section{Test Cases -- Member 2: TestNG Fixtures \& DataProvider}
+% ═══════════════════════════════════════════════════════════════════════════
+
+\textbf{File:} \texttt{src/test/java/tests/StudentServiceTest.java}\\
+\textbf{Approach:} Pure unit tests of \texttt{StudentService} using Mockito standalone.
+Fresh mocks are created in \texttt{@BeforeMethod} and verified with
+\texttt{verifyNoMoreInteractions} in \texttt{@AfterMethod}.
+A \texttt{@DataProvider} feeds three student records into the parameterised create test.
+
+\subsection{Test Case Summary}
+
+\begin{tabularx}{\textwidth}{>{\ttfamily\small}lX>{\bfseries}l}
+\toprule
+\textbf{Test Method} & \textbf{What it Verifies} & \textbf{Expected} \\
+\midrule
+testCreateStudent [Alice]
+  & Stubs \texttt{findByEmail} $\to$ empty, \texttt{save} $\to$ saved object;
+    asserts ID not null, name = ``Alice'', email match, verifies both repo calls
+  & \textcolor{passgreen}{PASS} \\
+\addlinespace
+testCreateStudent [Bob]
+  & Same as above with Bob's data (DataProvider row 2)
+  & \textcolor{passgreen}{PASS} \\
+\addlinespace
+testCreateStudent [Carol]
+  & Same as above with Carol's data (DataProvider row 3)
+  & \textcolor{passgreen}{PASS} \\
+\addlinespace
+testGetStudentById\_Found
+  & Stubs \texttt{findById(1L)} $\to$ Optional of Dave;
+    asserts present = true, name = ``Dave''
+  & \textcolor{passgreen}{PASS} \\
+\addlinespace
+testGetStudentById\_NotFound
+  & Stubs \texttt{findById(99L)} $\to$ Optional.empty();
+    asserts present = false
+  & \textcolor{passgreen}{PASS} \\
+\addlinespace
+testGetAllStudents\_ReturnsList
+  & Stubs \texttt{findAll} $\to$ list of 1 student;
+    asserts list size = 1, name = ``Eve''
+  & \textcolor{passgreen}{PASS} \\
+\bottomrule
+\end{tabularx}
+
+\subsection{Key Annotations Used}
+
+\begin{itemize}[noitemsep]
+  \item \texttt{@BeforeMethod} -- creates fresh \texttt{mock(StudentRepository.class)} and wires service
+  \item \texttt{@AfterMethod} -- calls \texttt{verifyNoMoreInteractions} to catch unexpected calls
+  \item \texttt{@DataProvider(name = "studentData")} -- supplies 3 rows of test data
+  \item \texttt{@Test(dataProvider = "studentData")} -- parameterised test execution
 \end{itemize}
 
-\subsection{Member 2: Test Fixtures \& Setup}
-Focused on Database integrity and Data Pollution prevention.
-\begin{itemize}
-    \item Utilized \texttt{@BeforeEach} to cleanly insert specific payload test fixtures mapping entities before a test fires.
-    \item Implemented \texttt{@AfterEach} with explicit \lstinline{studentRepository.deleteAll()} to sanitize the testing database afterward.
-    \item Created centralized and reusable \lstinline{createReusableStudentData()} object factories to reduce code duplication in defining entities.
+\subsection{DataProvider Definition}
+
+\begin{lstlisting}[language=Java, style=javaStyle, caption={DataProvider in StudentServiceTest.java}]
+@DataProvider(name = "studentData")
+public Object[][] studentDataProvider() {
+    return new Object[][] {
+        {"Alice", "alice@test.com", 22, "SE3010"},
+        {"Bob",   "bob@test.com",   25, "SE3020"},
+        {"Carol", "carol@test.com", 20, "SE3030"},
+    };
+}
+
+@Test(dataProvider = "studentData")
+public void testCreateStudent(String name, String email, int age, String course) {
+    when(studentRepository.findByEmail(email)).thenReturn(Optional.empty());
+    when(studentRepository.save(any(Student.class))).thenReturn(saved);
+
+    Student result = studentService.createStudent(input);
+
+    Assert.assertEquals(result.getName(), name, "Name should match");
+    verify(studentRepository).findByEmail(email);
+    verify(studentRepository).save(any(Student.class));
+}
+\end{lstlisting}
+
+\subsection{Fixture Lifecycle}
+
+\begin{lstlisting}[language=Java, style=javaStyle, caption={BeforeMethod and AfterMethod fixtures}]
+@BeforeMethod
+public void setUp() {
+    studentRepository = mock(StudentRepository.class);
+    studentService    = new StudentService(studentRepository);
+    System.out.println("[FIXTURE] Fresh mocks created - test starting");
+}
+
+@AfterMethod
+public void tearDown() {
+    verifyNoMoreInteractions(studentRepository);
+    System.out.println("[FIXTURE] Verified - test finished");
+}
+\end{lstlisting}
+
+\subsection{How to Check Member 2 Results}
+
+\begin{lstlisting}[style=shellStyle, numbers=none]
+mvn test -Dtest=tests.StudentServiceTest
+\end{lstlisting}
+
+\textbf{Expected console output:}
+
+\begin{lstlisting}[style=shellStyle, numbers=none]
+[FIXTURE] Fresh mocks created - test starting
+[FIXTURE] Verified - test finished
+... (repeated for each of 6 test invocations)
+[INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0
+\end{lstlisting}
+
+\textbf{Report file:} \texttt{target/surefire-reports/tests.StudentServiceTest.txt}
+
+% ═══════════════════════════════════════════════════════════════════════════
+\section{Test Cases -- Member 3: Cucumber BDD (Gherkin Scenarios)}
+% ═══════════════════════════════════════════════════════════════════════════
+
+\textbf{Feature file:} \texttt{src/test/resources/features/student\_registration.feature}\\
+\textbf{Step definitions:} \texttt{src/test/java/steps/StudentSteps.java}\\
+\textbf{Approach:} Business-readable Gherkin scenarios executed via Cucumber
+with \texttt{MockMvc} for real API calls against the Spring context (no browser, no Selenium).
+
+\subsection{Gherkin Feature File}
+
+\begin{lstlisting}[style=gherkinStyle, caption={student\_registration.feature -- Member 3}]
+Feature: Student Registration API
+  As an admin
+  I want to register students via the API
+  So that I can manage the student roster
+
+  Scenario: Successful student registration
+    Given no students exist in the system
+    When I register a student with name "Alice" email
+         "alice@uni.com" age 22 course "SE3010"
+    Then the registration response status should be 201
+    And the registered student name should be "Alice"
+
+  Scenario: Duplicate email returns conflict error
+    Given a student with email "bob@uni.com" already exists
+    When I register a student with name "Bob2" email
+         "bob@uni.com" age 24 course "SE3020"
+    Then the registration response status should be 409
+
+  Scenario: Missing required field returns bad request error
+    Given no students exist in the system
+    When I send a registration request with malformed JSON body
+    Then the registration response status should be 400
+\end{lstlisting}
+
+\subsection{Scenario Summary}
+
+\begin{tabularx}{\textwidth}{lX>{\bfseries}l}
+\toprule
+\textbf{Scenario} & \textbf{What it Verifies} & \textbf{Expected} \\
+\midrule
+Successful student registration
+  & POST valid student; HTTP 201 returned; response body contains name ``Alice''
+  & \textcolor{passgreen}{PASS} \\
+\addlinespace
+Duplicate email returns conflict error
+  & Pre-seed email ``bob@uni.com''; POST same email; HTTP 409 Conflict returned
+  & \textcolor{passgreen}{PASS} \\
+\addlinespace
+Missing required field returns bad request
+  & POST \texttt{\{\ bad json\ \}}; Spring rejects with HTTP 400 Bad Request
+  & \textcolor{passgreen}{PASS} \\
+\bottomrule
+\end{tabularx}
+
+\subsection{Step Definition Highlights}
+
+\begin{lstlisting}[language=Java, style=javaStyle, caption={StudentSteps.java -- selected step defs}]
+@Given("a student with email {string} already exists")
+public void a_student_with_email_already_exists(String email) {
+    studentRepository.deleteAll();
+    studentRepository.save(
+        Student.builder().name("Existing").email(email)
+                         .age(20).course("SE0000").build());
+}
+
+@When("I register a student with name {string} email {string} age {int} course {string}")
+public void i_register_a_student(String name, String email,
+                                  int age, String course) throws Exception {
+    Student s = Student.builder().name(name).email(email)
+                                 .age(age).course(course).build();
+    lastResult = mockMvc.perform(post("/api/students")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(s)))
+        .andReturn();
+}
+
+@Then("the registration response status should be {int}")
+public void the_registration_status_should_be(int expectedStatus) {
+    int actual = lastResult.getResponse().getStatus();
+    Assert.assertEquals(actual, expectedStatus,
+        "Expected HTTP " + expectedStatus + " but got " + actual);
+}
+\end{lstlisting}
+
+\subsection{How to Check Member 3 Results}
+
+\begin{lstlisting}[style=shellStyle, numbers=none]
+mvn test -Dtest=tests.CucumberRunnerTest
+\end{lstlisting}
+
+\textbf{Expected console output:}
+
+\begin{lstlisting}[style=shellStyle, numbers=none]
+Scenario: Successful student registration         # features/student_registration.feature:7
+Scenario: Duplicate email returns conflict error  # features/student_registration.feature:14
+Scenario: Missing required field returns bad req  # features/student_registration.feature:20
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0
+\end{lstlisting}
+
+% ═══════════════════════════════════════════════════════════════════════════
+\section{Test Cases -- Member 4: Cucumber TestNG Runner \& Reports}
+% ═══════════════════════════════════════════════════════════════════════════
+
+\textbf{File:} \texttt{src/test/java/tests/CucumberRunnerTest.java}\\
+\textbf{Approach:} Extends \texttt{AbstractTestNGCucumberTests} (the official Cucumber TestNG
+integration class) and configures \texttt{@CucumberOptions} to point at the feature file,
+glue package, and output plugins.
+
+\subsection{Runner Configuration}
+
+\begin{lstlisting}[language=Java, style=javaStyle, caption={CucumberRunnerTest.java -- Member 4}]
+@CucumberOptions(
+    features  = "src/test/resources/features/student_registration.feature",
+    glue      = {"steps"},
+    plugin    = {
+        "pretty",
+        "html:target/cucumber-reports/cucumber.html",
+        "json:target/cucumber-reports/cucumber.json"
+    },
+    monochrome = true
+)
+public class CucumberRunnerTest extends AbstractTestNGCucumberTests {
+
+    @Override
+    @DataProvider(parallel = false)
+    public Object[][] scenarios() {
+        return super.scenarios();
+    }
+}
+\end{lstlisting}
+
+\subsection{TestNG Suite File -- \texttt{testng.xml}}
+
+\begin{lstlisting}[style=xmlStyle, caption={testng.xml -- orchestrates all 4 members}]
+<suite name="Student API Test Suite" verbose="2">
+
+  <test name="Member1 - Controller Assertions">
+    <classes>
+      <class name="tests.StudentControllerTest"/>
+    </classes>
+  </test>
+
+  <test name="Member2 - Service Fixtures">
+    <classes>
+      <class name="tests.StudentServiceTest"/>
+    </classes>
+  </test>
+
+  <test name="Member3+4 - Cucumber BDD">
+    <classes>
+      <class name="tests.CucumberRunnerTest"/>
+    </classes>
+  </test>
+
+</suite>
+\end{lstlisting}
+
+\subsection{How to Check Member 4 Reports}
+
+\subsubsection{Option A -- Run tests and open the HTML report}
+
+\begin{lstlisting}[style=shellStyle, numbers=none]
+# Step 1: Run all tests
+mvn test
+
+# Step 2: Open the Surefire HTML report
+start target\site\surefire-report.html
+\end{lstlisting}
+
+\subsubsection{Option B -- Open the Cucumber-specific HTML report}
+
+\begin{lstlisting}[style=shellStyle, numbers=none]
+start target\cucumber-reports\cucumber.html
+\end{lstlisting}
+
+\subsubsection{Option C -- Open the TestNG native report}
+
+\begin{lstlisting}[style=shellStyle, numbers=none]
+start target\surefire-reports\index.html
+\end{lstlisting}
+
+\subsection{Report File Locations Summary}
+
+\begin{tabularx}{\textwidth}{>{\ttfamily\small}lX}
+\toprule
+\textbf{File Path} & \textbf{Description} \\
+\midrule
+target/site/surefire-report.html & Maven Surefire HTML report (all members) \\
+target/surefire-reports/index.html & TestNG HTML suite results \\
+target/surefire-reports/emailable-report.html & TestNG single-page email report \\
+target/surefire-reports/testng-results.xml & TestNG raw XML results \\
+target/cucumber-reports/cucumber.html & Cucumber BDD HTML report (Member 3+4) \\
+target/cucumber-reports/cucumber.json & Cucumber JSON (for CI integrations) \\
+target/surefire-reports/tests.StudentControllerTest.txt & Member 1 text log \\
+target/surefire-reports/tests.StudentServiceTest.txt & Member 2 text log \\
+\bottomrule
+\end{tabularx}
+
+% ═══════════════════════════════════════════════════════════════════════════
+\section{Complete Test Results Summary}
+% ═══════════════════════════════════════════════════════════════════════════
+
+Running \texttt{mvn test} from the project root executes all 13 test invocations
+across 4 members. The expected final output is:
+
+\begin{lstlisting}[style=shellStyle, numbers=none, caption={Expected final mvn test output}]
+[INFO] Tests run: 13, Failures: 0, Errors: 0, Skipped: 0
+[INFO] BUILD SUCCESS
+\end{lstlisting}
+
+\begin{tabularx}{\textwidth}{lllX}
+\toprule
+\textbf{Member} & \textbf{Class} & \textbf{Tests} & \textbf{Description} \\
+\midrule
+Member 1 & StudentControllerTest & 4 & HTTP 201, 200, 404, 400 via MockMvc \\
+Member 2 & StudentServiceTest    & 6 & 3$\times$DataProvider + 3 service unit tests \\
+Member 3+4 & CucumberRunnerTest  & 3 & BDD: 201, 409, 400 Cucumber scenarios \\
+\midrule
+\multicolumn{2}{l}{\textbf{Total}} & \textbf{13} & \textbf{All pass, 0 failures} \\
+\bottomrule
+\end{tabularx}
+
+% ═══════════════════════════════════════════════════════════════════════════
+\section{Frontend Application}
+% ═══════════════════════════════════════════════════════════════════════════
+
+\subsection{Overview}
+
+The React frontend (\texttt{frontend/}) provides a single-page dashboard to manage student
+enrolments. It communicates with the Spring Boot backend via the browser Fetch API.
+ESLint (React Hooks + React Refresh rules) reports \textbf{zero warnings or errors}.
+
+\subsection{Component Structure}
+
+\begin{tabularx}{\textwidth}{>{\ttfamily\small}lX}
+\toprule
+\textbf{File} & \textbf{Purpose} \\
+\midrule
+src/App.jsx    & Main component -- form state, list render, delete handler \\
+src/api.js     & \texttt{getStudents()}, \texttt{createStudent()}, \texttt{deleteStudent()} wrappers \\
+src/index.css  & Full custom design system (CSS variables, grid layout, cards) \\
+src/main.jsx   & React root entry point \\
+vite.config.js & Vite build configuration with React plugin \\
+\bottomrule
+\end{tabularx}
+
+\subsection{Frontend Features}
+
+\begin{itemize}[noitemsep]
+  \item \textbf{Add Student} -- form with Name, Email, Age, Course fields; submits POST
+  \item \textbf{List Students} -- shows count badge, renders all enrolled students as cards
+  \item \textbf{Delete Student} -- confirm dialog $\to$ DELETE request $\to$ removes from UI
+  \item \textbf{Loading state} -- spinner while fetching initial data
+  \item \textbf{Empty state} -- friendly message when no students are enrolled
+  \item \textbf{Responsive layout} -- 2-column grid on desktop, single column on mobile ($<$768px)
 \end{itemize}
 
-\subsection{Member 3: Mocking and Stubbing}
-Brought unit test execution speeds down drastically by completely dropping network or database reliance via \textbf{Mockito}.
-\begin{itemize}
-    \item Isolated testing of the \texttt{StudentController} by mocking the \texttt{StudentService} layer, assuring the REST controllers behave adequately regardless of database health.
-    \item Used \lstinline{when(...).thenReturn(...)} patterns on \texttt{StudentRepository} to strictly limit scope testing when testing specific complex \texttt{StudentService} methods.
-\end{itemize}
+\subsection{Running Frontend \& Backend Together}
 
-\subsection{Member 4: Continuous Integration \& Test Reporting}
-Established an automated workflow ensuring no faulty logic lands in production branches.
-\begin{itemize}
-    \item Configured a complete \textbf{GitHub Actions} YAML workflow (\lstinline{.github/workflows/test.yml}) firing Maven tests upon pushes/PRs to \texttt{main}.
-    \item Enabled robust \textbf{Maven Surefire Reports} for standardized XML logging.
-    \item Set up automated HTML reporting enabling easy developer digestion of test states.
-\end{itemize}
+\begin{lstlisting}[style=shellStyle, numbers=none, caption={Full stack development setup}]
+# Terminal 1 - Start backend
+cd "C:\C Projects\SEPQM\se3010-testing"
+mvn spring-boot:run
+# -> Backend running at http://localhost:8080
 
-\section{Extra Feature: Behaviour-Driven Development (BDD)}
-To elevate testing to a business-readable format, \textbf{Cucumber} was integrated into the Spring Boot ecosystem.
-\begin{itemize}
-    \item Wrote plain English, Gherkin syntax feature files documenting User Scenarios.
-    \item Backed the Gherkin files using \texttt{TestRestTemplate} Java Step Definitions.
-    \item Configured elegant output generation to \texttt{target/cucumber-reports/}, giving fully visual mappings of Given/When/Then scenario passes.
-\end{itemize}
+# Terminal 2 - Start frontend
+cd "C:\C Projects\SEPQM\frontend"
+npm install
+npm run dev
+# -> Frontend running at http://localhost:5173
+# Open http://localhost:5173 in your browser
+\end{lstlisting}
 
+% ═══════════════════════════════════════════════════════════════════════════
+\section{POM Dependency Configuration}
+% ═══════════════════════════════════════════════════════════════════════════
+
+\begin{lstlisting}[style=xmlStyle, caption={Key test dependencies in pom.xml}]
+<!-- Spring Boot Test (JUnit FULLY EXCLUDED) -->
+<dependency>
+  <groupId>org.springframework.boot</groupId>
+  <artifactId>spring-boot-starter-test</artifactId>
+  <scope>test</scope>
+  <exclusions>
+    <exclusion>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter</artifactId>
+    </exclusion>
+    <exclusion>
+      <groupId>org.junit.vintage</groupId>
+      <artifactId>junit-vintage-engine</artifactId>
+    </exclusion>
+  </exclusions>
+</dependency>
+
+<!-- TestNG -->
+<dependency>
+  <groupId>org.testng</groupId>
+  <artifactId>testng</artifactId>
+  <version>7.10.2</version>
+  <scope>test</scope>
+</dependency>
+
+<!-- Mockito standalone (no JUnit binding) -->
+<dependency>
+  <groupId>org.mockito</groupId>
+  <artifactId>mockito-core</artifactId>
+  <version>5.12.0</version>
+  <scope>test</scope>
+</dependency>
+
+<!-- Cucumber BDD with TestNG runner -->
+<dependency>
+  <groupId>io.cucumber</groupId>
+  <artifactId>cucumber-java</artifactId>
+  <version>7.18.0</version>
+  <scope>test</scope>
+</dependency>
+<dependency>
+  <groupId>io.cucumber</groupId>
+  <artifactId>cucumber-testng</artifactId>
+  <version>7.18.0</version>
+  <scope>test</scope>
+</dependency>
+<dependency>
+  <groupId>io.cucumber</groupId>
+  <artifactId>cucumber-spring</artifactId>
+  <version>7.18.0</version>
+  <scope>test</scope>
+</dependency>
+\end{lstlisting}
+
+% ═══════════════════════════════════════════════════════════════════════════
+\section{Troubleshooting}
+% ═══════════════════════════════════════════════════════════════════════════
+
+\begin{tabularx}{\textwidth}{>{\bfseries}lX}
+\toprule
+Problem & Solution \\
+\midrule
+\texttt{BUILD FAILURE} -- Cannot resolve symbol \texttt{testng}
+  & Run \texttt{mvn dependency:resolve} then reload Maven in IDE \\
+\addlinespace
+\texttt{Connection refused} on frontend
+  & Ensure backend is running (\texttt{mvn spring-boot:run}) before opening the UI \\
+\addlinespace
+PostgreSQL connection error during \texttt{mvn test}
+  & Tests use \texttt{@ActiveProfiles("test")} which activates H2 -- no PostgreSQL needed for tests \\
+\addlinespace
+\texttt{H2 table not found}
+  & Verify \texttt{src/test/resources/application-test.properties} has \texttt{ddl-auto=create-drop} \\
+\addlinespace
+Cucumber scenarios not found
+  & Ensure \texttt{CucumberOptions\#features} path is relative to project root,
+    and \texttt{glue = \{"steps"\}} matches the \texttt{steps} package \\
+\addlinespace
+\texttt{org.junit.*} import errors
+  & Remove any leftover JUnit imports; all \texttt{@Test} must be from \texttt{org.testng.annotations} \\
+\addlinespace
+Port 8080 in use
+  & Kill the process: \texttt{netstat -aon | findstr 8080} then \texttt{taskkill /PID <pid> /F} \\
+\bottomrule
+\end{tabularx}
+
+% ═══════════════════════════════════════════════════════════════════════════
 \section{Conclusion}
-This project successfully demonstrates the full range of Software Engineering testing workflows, shifting smoothly from highly unit-scoped logic mocked via Mockito, scaling heavily into BDD Cucumber Scenarios mirroring actual end-user inputs coming from the React Frontend UI, all continuously verified via CI pipelines connecting to an orchestrated Cloud database natively.
+% ═══════════════════════════════════════════════════════════════════════════
+
+This project demonstrates a complete, layered software testing strategy built entirely
+on \textbf{TestNG} and \textbf{Cucumber-TestNG} -- with zero JUnit dependency:
+
+\begin{itemize}[noitemsep]
+  \item \textbf{Member 1} validates REST HTTP semantics (201, 200, 404, 400) using MockMvc with
+        \texttt{org.testng.Assert} for all assertions.
+  \item \textbf{Member 2} demonstrates test isolation, lifecycle management (\texttt{@BeforeMethod}/
+        \texttt{@AfterMethod}), and data-driven testing via \texttt{@DataProvider} with Mockito
+        standalone.
+  \item \textbf{Member 3} brings business-readable BDD coverage via Gherkin feature files backed
+        by MockMvc step definitions -- testing 201, 409 (duplicate email), and 400 scenarios.
+  \item \textbf{Member 4} wires everything together via \texttt{AbstractTestNGCucumberTests},
+        \texttt{testng.xml} suite orchestration, and Maven Surefire HTML reporting.
+\end{itemize}
+
+The \textbf{13 tests run in under 60 seconds}, with full HTML reports generated at
+\texttt{target/site/surefire-report.html} and Cucumber-specific output at
+\texttt{target/cucumber-reports/cucumber.html}.
 
 \end{document}
