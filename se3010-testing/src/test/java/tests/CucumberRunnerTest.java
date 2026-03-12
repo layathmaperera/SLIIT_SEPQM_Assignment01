@@ -10,7 +10,7 @@ import org.testng.annotations.DataProvider;
  * Generates surefire HTML report via maven-surefire-report-plugin.
  */
 @CucumberOptions(
-        features = "src/test/resources/features/student_registration.feature",
+        features = "src/test/resources/features",
         glue     = {"steps"},
         plugin   = {
                 "pretty",
