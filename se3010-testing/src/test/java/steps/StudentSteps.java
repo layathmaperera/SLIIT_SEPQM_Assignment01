@@ -18,6 +18,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.testng.Assert;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
 /**
@@ -88,6 +89,41 @@ public class StudentSteps {
 
     @Then("the registered student name should be {string}")
     public void the_registered_student_name_should_be(String expectedName) throws Exception {
+        String body = lastResult.getResponse().getContentAsString();
+        Student returned = objectMapper.readValue(body, Student.class);
+        Assert.assertEquals(returned.getName(), expectedName, "Student name mismatch");
+    }
+
+    // ── Steps for student.feature ───────────────────────────────────────────
+    @Given("the system has no students")
+    public void the_system_has_no_students() {
+        studentRepository.deleteAll();
+    }
+
+    @When("I create a student with name {string} and email {string}")
+    public void i_create_a_student_with_name_and_email(String name, String email) throws Exception {
+        Student s = Student.builder().name(name).email(email).age(20).course("SE3000").build();
+        lastResult = mockMvc.perform(post("/api/students")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(s)))
+                .andReturn();
+    }
+
+    @When("I request a student with ID {int}")
+    public void i_request_a_student_with_id(int id) throws Exception {
+        lastResult = mockMvc.perform(get("/api/students/{id}", (long) id))
+                .andReturn();
+    }
+
+    @Then("the response status should be {int}")
+    public void the_response_status_should_be(int expectedStatus) {
+        int actual = lastResult.getResponse().getStatus();
+        Assert.assertEquals(actual, expectedStatus,
+                "Expected HTTP " + expectedStatus + " but got " + actual);
+    }
+
+    @Then("the returned student should have the name {string}")
+    public void the_returned_student_should_have_the_name(String expectedName) throws Exception {
         String body = lastResult.getResponse().getContentAsString();
         Student returned = objectMapper.readValue(body, Student.class);
         Assert.assertEquals(returned.getName(), expectedName, "Student name mismatch");
